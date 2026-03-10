@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VOC Detection Dashboard</title>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Import Firebase SDKs (v9+ Modular)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    // -------------------- Firebase Configuration --------------------
+    const firebaseConfig = {
+      databaseURL: "https://cansat-ui-83544-default-rtdb.firebaseio.com/"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // -------------------- References to Database Paths --------------------
+    const mq3Ref = ref(database, "Sensors/MQ3");
+    const mq136Ref = ref(database, "Sensors/MQ136");
+    const tgs2602Ref = ref(database, "Sensors/TGS2602");
+    const statusRef = ref(database, "Sensors/Status");
+
+    // -------------------- Update Webpage in Real Time --------------------
+    onValue(mq3Ref, (snapshot) => {
+      document.getElementById("mq3").textContent = snapshot.val();
+    });
+
+    onValue(mq136Ref, (snapshot) => {
+      document.getElementById("mq136").textContent = snapshot.val();
+    });
+
+    onValue(tgs2602Ref, (snapshot) => {
+      document.getElementById("tgs2602").textContent = snapshot.val();
+    });
+
+    onValue(statusRef, (snapshot) => {
+      const status = snapshot.val();
+      const statusBox = document.getElementById("status");
+      statusBox.textContent = status;
+
+      if (status === "VOC Detected") {
+        statusBox.style.color = "#ff0000";
+        statusBox.style.fontWeight = "bold";
+      } else {
+        statusBox.style.color = "#00b300";
+        statusBox.style.fontWeight = "normal";
+      }
+    });
+  </script>
+
+  <!-- -------------------- Styling -------------------- -->
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0e1117;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      color: #00bfff;
+      margin-bottom: 20px;
+    }
+    .sensor-card {
+      background: #1c1f26;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 191, 255, 0.2);
+      padding: 20px 40px;
+      margin: 10px;
+      text-align: center;
+      transition: 0.3s ease-in-out;
+    }
+    .sensor-card:hover {
+      transform: scale(1.05);
+    }
+    .label {
+      font-size: 18px;
+      color: #aaa;
+    }
+    .value {
+      font-size: 36px;
+      margin-top: 5px;
+    }
+    #status {
+      font-size: 24px;
+      margin-top: 15px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <h1>VOC Gas Detection Dashboard</h1>
+
+  <div class="sensor-card">
+    <div class="label">MQ3 Sensor</div>
+    <div class="value" id="mq3">--</div>
+  </div>
+
+  <div class="sensor-card">
+    <div class="label">MQ136 Sensor</div>
+    <div class="value" id="mq136">--</div>
+  </div>
+
+  <div class="sensor-card">
+    <div class="label">TGS2602 Sensor</div>
+    <div class="value" id="tgs2602">--</div>
+  </div>
+
+  <div class="sensor-card">
+    <div class="label">Air Quality Status</div>
+    <div class="value" id="status">Loading...</div>
+  </div>
+</body>
+</html>
